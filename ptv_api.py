@@ -34,3 +34,16 @@ def get_tram_departures():
     else:
         print(f"Error {response.status_code}: {response.text}")
         return None
+    
+def get_route_types():
+    """
+    Perform GET request on /v3/route_types
+    """
+    endpoint = "/v3/route_types"
+    url = getUrl(endpoint)
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Error {response.status_code}: {response.text}")
+        return None

@@ -1,6 +1,6 @@
 import pygame, os
 from config import *
-from ptv_api import get_tram_departures
+from ptv_api import get_tram_departures, get_route_types
 
 pygame.init()
 pygame.mouse.set_visible(False)
@@ -18,6 +18,7 @@ running = True
 
 screen.fill(BACKGROUND_COLOR)
 
+print(get_route_types())
 print(get_tram_departures())
 
 while running:
