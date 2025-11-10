@@ -9,7 +9,7 @@ load_dotenv()
 
 devId = os.getenv("USER_ID")
 key = os.getenv("API_KEY")
-BASE_URL = "http://timetableapi.ptv.vic.gov.au"
+BASE_URL = "https://timetableapi.ptv.vic.gov.au"
 
 tram_stop_id = os.getenv("TRAM_STOP_ID")
 train_stop_id = os.getenv("TRAIN_STOP_ID")
@@ -18,15 +18,15 @@ train_stop_id = os.getenv("TRAIN_STOP_ID")
 def getUrl(endpoint: str) -> str:
     """Generate a properly signed PTV API URL."""
     request_str = endpoint + ('&' if '?' in endpoint else '?') + f"devid={devId}"
-    signature = hmac.new(key.encode(), request_str.encode(), sha1).hexdigest().upper()
+    signature = hmac.new(key.encode(), request_str.encode(), sha1).hexdigest()
     return f"{BASE_URL}{request_str}&signature={signature}"
 
 
-def get_tram_departures():
+def get_tram_departures(route_type=1):
     """
     Perform GET request on /v3/departures/route_type/{route_type}/stop/{stop_id}
     """
-    endpoint = f"/v3/departures/route_type/1/stop/{tram_stop_id}"
+    endpoint = f"/v3/departures/route_type/{route_type}/stop/{tram_stop_id}"
     url = getUrl(endpoint)
     response = requests.get(url)
     if response.status_code == 200:
