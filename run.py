@@ -1,6 +1,6 @@
 import pygame, os
 from config import *
-from ptv_api import getUrl
+from ptv_api import search_stop
 
 pygame.init()
 pygame.mouse.set_visible(False)
@@ -18,7 +18,7 @@ running = True
 
 screen.fill(BACKGROUND_COLOR)
 
-print("PTV API URL for healthcheck:", getUrl('/v2/healthcheck'))
+print(search_stop("Armadale"))
 
 while running:
     screen.fill(BACKGROUND_COLOR)
