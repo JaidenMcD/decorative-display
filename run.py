@@ -3,25 +3,29 @@ from config import *
 
 pygame.init()
 pygame.mouse.set_visible(False)
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+
+screen = pygame.display.set_mode(SCREEN_RES)
+canvas = pygame.Surface(BASE_RES)  # low-res drawing surface
+
 running = True
 screen.fill(BACKGROUND_COLOR)
+
+
+font = pygame.font.Font(None, 16)  # small pixel font
+text = font.render("NEXT TRAIN", True, TEXT_COLOR)
+
 clock = pygame.time.Clock()
 
-font_large = pygame.font.Font(None, 48)
-
 while running:
-    pygame.display.update()
+    # --- draw at low res ---
+    canvas.fill(BACKGROUND_COLOR)
+    canvas.blit(text, (20, 10))
+    pygame.draw.rect(canvas, TEXT_COLOR, (50, 40, 20, 10))  # sample shape
 
-    # fill the screen with a color to wipe away anything from last frame
-    screen.fill(BACKGROUND_COLOR)
-    
-    screen.blit(font_large.render("NEXT TRAM", True, TEXT_COLOR), (140, 40))
-
-
-
-    # flip() the display to put your work on screen
+    # --- scale up to screen ---
+    scaled = pygame.transform.scale(canvas, SCREEN_RES)
+    screen.blit(scaled, (0,0))
     pygame.display.flip()
-    clock.tick(5)  # limits FPS to 60
+    clock.tick(5)
 
 pygame.quit()
