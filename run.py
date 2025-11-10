@@ -15,7 +15,7 @@ canvas = pygame.Surface(BASE_RES)
 
 # Font setup
 font_path = os.path.join(os.path.dirname(__file__), "assets/fonts/Px437_IBM_PGC.ttf")
-font = pygame.font.Font(font_path, 8)
+font = pygame.font.Font(font_path, 6)
 
 clock = pygame.time.Clock()
 running = True
