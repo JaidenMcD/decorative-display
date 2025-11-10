@@ -1,5 +1,7 @@
 import pygame
 from config import *
+import os
+font_path = os.path.join(os.path.dirname(__file__), "assets/fonts/Px437_IBM_PGC.ttf")
 
 pygame.init()
 pygame.mouse.set_visible(False)
@@ -11,7 +13,7 @@ running = True
 screen.fill(BACKGROUND_COLOR)
 
 
-font = pygame.font.Font("/assets/fonts/Px437_IBM_PGC.ttf", 12)
+font = pygame.font.Font(font_path, 12)
 text = font.render("NEXT TRAIN", False, TEXT_COLOR)
 
 clock = pygame.time.Clock()
