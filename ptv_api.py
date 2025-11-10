@@ -22,11 +22,11 @@ def getUrl(endpoint: str) -> str:
     return f"{BASE_URL}{request_str}&signature={signature}"
 
 
-def get_tram_departures(route_type=1):
+def get_tram_departures(route_type=1, max_results=5):
     """
     Perform GET request on /v3/departures/route_type/{route_type}/stop/{stop_id}
     """
-    endpoint = f"/v3/departures/route_type/{route_type}/stop/{tram_stop_id}"
+    endpoint = f"/v3/departures/route_type/{route_type}/stop/{tram_stop_id}?max_results={max_results}"
     url = getUrl(endpoint)
     print(url)
     response = requests.get(url)
