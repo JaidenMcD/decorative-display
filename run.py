@@ -8,18 +8,16 @@ running = True
 screen.fill(BACKGROUND_COLOR)
 clock = pygame.time.Clock()
 
-pygame.font.init()
-font = pygame.font.SysFont('Arial', 30) # Font name and size
-
+font_large = pygame.font.Font(None, 48)
 
 while running:
     pygame.display.update()
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill(BACKGROUND_COLOR)
-    pygame.draw.rect(screen, TEXT_COLOR, pygame.Rect(0, 0, 100, 100), 0)
     
-    font.render('Hello Pygame!', True, TEXT_COLOR) # Text, antialias, color (white)
+    screen.blit(font_large.render("NEXT TRAM", True, TEXT_COLOR), (140, 40))
+
 
 
     # flip() the display to put your work on screen
