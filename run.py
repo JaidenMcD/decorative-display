@@ -9,7 +9,7 @@ screen = pygame.display.set_mode(SCREEN_RES)
 
 # Font setup
 font_path = os.path.join(os.path.dirname(__file__), "assets/fonts/PressStart2P-Regular.ttf")
-font_large = pygame.font.Font(None, 24)
+font_large = pygame.font.Font(font_path, 24)
 
 clock = pygame.time.Clock()
 running = True
