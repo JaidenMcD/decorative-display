@@ -1,11 +1,8 @@
 # --- DO NOT CHANGE THESE VALUES ---
-WIDTH = 480
-HEIGHT = 320
 BACKGROUND_COLOR = (0, 0, 0)
 TEXT_COLOR = (255, 255, 255)
-BASE_RES = (120, 80)      # logical canvas
+
 SCREEN_RES = (480, 320)   # actual display
-SCALE = SCREEN_RES[0] // BASE_RES[0]  # 4
 
 
 # --- YOU CAN CHANGE THESE VALUES ---
