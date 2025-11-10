@@ -28,6 +28,7 @@ def get_tram_departures(route_type=1):
     """
     endpoint = f"/v3/departures/route_type/{route_type}/stop/{tram_stop_id}"
     url = getUrl(endpoint)
+    print(url)
     response = requests.get(url)
     if response.status_code == 200:
         return response.json()
