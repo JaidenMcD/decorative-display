@@ -48,3 +48,20 @@ def get_train_departures():
     else:
         print(f"Error {response.status_code}: {response.text}")
         return None
+    
+
+class TramStop:
+    def __init__(self, stop_id):
+        self.stop_id = stop_id
+    
+
+    def get_departures(self, max_results=5):
+        endpoint = f"/v3/departures/route_type/1/stop/{self.stop_id}?max_results={max_results}"
+        url = getUrl(endpoint)
+        response = requests.get(url)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print(f"Error {response.status_code}: {response.text}")
+            return None
+    
