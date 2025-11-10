@@ -11,7 +11,7 @@ running = True
 screen.fill(BACKGROUND_COLOR)
 
 
-font = pygame.font.Font(None, 16)  # small pixel font
+font = pygame.font.Font("/usr/share/fonts/truetype/liberation/LiberationMono-Bold.ttf", 12)
 text = font.render("NEXT TRAIN", False, TEXT_COLOR)
 
 clock = pygame.time.Clock()
