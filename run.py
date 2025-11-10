@@ -20,6 +20,7 @@ while running:
     screen.fill(BACKGROUND_COLOR)
 
     screen.blit(font_large.render("NEXT TRAM", True, TEXT_COLOR), (140, 40))
+    screen.blit(font_large.render("NEXT TRAIN", True, TEXT_COLOR), (180, 120))
     pygame.display.flip()
 
     clock.tick(FPS)
