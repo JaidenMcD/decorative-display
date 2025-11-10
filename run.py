@@ -1,6 +1,6 @@
 import pygame, os
 from config import *
-from ptv_api import search_stop
+from ptv_api import get_departures
 
 pygame.init()
 pygame.mouse.set_visible(False)
@@ -18,7 +18,7 @@ running = True
 
 screen.fill(BACKGROUND_COLOR)
 
-print(search_stop("Armadale"))
+get_departures("2593", 0)
 
 while running:
     screen.fill(BACKGROUND_COLOR)

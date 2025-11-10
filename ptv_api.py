@@ -11,7 +11,8 @@ devId = os.getenv("USER_ID")
 key = os.getenv("API_KEY")
 BASE_URL = "http://timetableapi.ptv.vic.gov.au"
 
-
+tram_stop_id = os.getenv("TRAM_STOP_ID")
+train_stop_id = os.getenv("TRAIN_STOP_ID")
 
 
 def getUrl(endpoint: str) -> str:
@@ -21,11 +22,11 @@ def getUrl(endpoint: str) -> str:
     return f"{BASE_URL}{request_str}&signature={signature}"
 
 
-def search_stop(search_term: str):
+def get_tram_departures():
     """
-    Perform GET request on /v3/search/{search_term}
+    Perform GET request on /v3/departures/route_type/{route_type}/stop/{stop_id}
     """
-    endpoint = f"/v3/search/{search_term}"
+    endpoint = f"/v3/departures/route_type/3/stop/{tram_stop_id}"
     url = getUrl(endpoint)
     response = requests.get(url)
     if response.status_code == 200:
