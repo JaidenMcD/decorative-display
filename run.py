@@ -13,7 +13,7 @@ running = True
 screen.fill(BACKGROUND_COLOR)
 
 
-font = pygame.font.Font(font_path, 12)
+font = pygame.font.Font(font_path, 8)
 text = font.render("NEXT TRAIN", False, TEXT_COLOR)
 
 clock = pygame.time.Clock()
