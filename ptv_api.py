@@ -26,7 +26,7 @@ def get_tram_departures():
     """
     Perform GET request on /v3/departures/route_type/{route_type}/stop/{stop_id}
     """
-    endpoint = f"/v3/departures/route_type/3/stop/{tram_stop_id}"
+    endpoint = f"/v3/departures/route_type/1/stop/{tram_stop_id}"
     url = getUrl(endpoint)
     response = requests.get(url)
     if response.status_code == 200:
@@ -35,11 +35,11 @@ def get_tram_departures():
         print(f"Error {response.status_code}: {response.text}")
         return None
     
-def get_route_types():
+def get_train_departures():
     """
-    Perform GET request on /v3/route_types
+    Perform GET request on /v3/departures/route_type/{route_type}/stop/{stop_id}
     """
-    endpoint = "/v3/route_types"
+    endpoint = f"/v3/departures/route_type/0/stop/{train_stop_id}"
     url = getUrl(endpoint)
     response = requests.get(url)
     if response.status_code == 200:
