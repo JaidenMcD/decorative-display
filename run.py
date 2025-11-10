@@ -19,7 +19,6 @@ running = True
 screen.fill(BACKGROUND_COLOR)
 
 print(get_tram_departures())
-print(get_train_departures())
 
 while running:
     screen.fill(BACKGROUND_COLOR)
