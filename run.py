@@ -20,7 +20,7 @@ running = True
 screen.fill(BACKGROUND_COLOR)
 
 tramStop = TramStop(os.getenv("TRAM_STOP_ID"))
-print(city_tram = tramStop.get_next_city_tram())
+print(tramStop.get_next_city_tram())
 
 while running:
     screen.fill(BACKGROUND_COLOR)
