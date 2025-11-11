@@ -6,4 +6,4 @@ SCREEN_RES = (480, 320)   # actual display
 
 
 # --- YOU CAN CHANGE THESE VALUES ---
-FPS = 5
+FPS = 1

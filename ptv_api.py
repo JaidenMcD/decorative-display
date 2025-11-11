@@ -130,33 +130,35 @@ class TramStop:
                         self.next_departures.append(new_departure)   
 
     def display_departures(self):
-        """Display each upcoming departure with route, direction, and local time only."""
+        """Pretty-print upcoming departures with route, direction, and time remaining."""
         if not self.next_departures:
             print("No departures found. Run get_departures() first.")
             return
 
+        now = datetime.now(tz)
+
         print("Next Departures:")
-        for dep in sorted(
-            self.next_departures,
-            key=lambda d: d["estimated_departure_utc"] or d["scheduled_departure_utc"]
-        ):
+        for dep in sorted(self.next_departures,
+                        key=lambda d: d["estimated_departure_utc"] or d["scheduled_departure_utc"]):
             # pick estimated time if available
             dep_time = dep["estimated_departure_utc"] or dep["scheduled_departure_utc"]
 
-            # ensure datetime object
+            # ensure it's a datetime
             if isinstance(dep_time, str):
                 dep_time = parse_utc_to_local(dep_time, tz)
 
-            # format to local time (e.g. "08:15 PM")
-            time_str = dep_time.strftime("%I:%M %p")
+            mins_away = int((dep_time - now).total_seconds() // 60)
 
-            # find direction name
+            # Find direction name
             direction_name = next(
                 (d["direction_name"] for d in self.directions if d["direction_id"] == dep["direction_id"]),
                 "Unknown direction"
             )
 
-            print(f"→ Route {dep['route_id']} to {direction_name}: {time_str}")
+            route_id = dep["route_id"]
+            time_str = dep_time.strftime("%I:%M %p")
+
+            print(f"→ Route {route_id} to {direction_name}: departs at {time_str} ({mins_away} min)")
 
     def populate_stop(self):
         """Fetch and populate tram stop details from the PTV API."""
