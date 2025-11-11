@@ -85,11 +85,11 @@ def get_train_departures():
         return None
     
 
-class TramStop:
-    def __init__(self, stop_id):
+class Stop:
+    def __init__(self, stop_id, route_type):
         self.stop_id = stop_id
         self.directions = []
-        self.route_type = 1
+        self.route_type = route_type
         self.next_departures = []
         self.route_cache = {}
 

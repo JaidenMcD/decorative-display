@@ -1,7 +1,7 @@
 import pygame, os
 from config import *
 from ptv_api import get_tram_departures, get_train_departures
-from ptv_api import TramStop
+from ptv_api import Stop
 import time 
 
 pygame.init()
@@ -24,7 +24,7 @@ running = True
 
 screen.fill(BACKGROUND_COLOR)
 
-tramStop = TramStop(os.getenv("TRAM_STOP_ID"))
+tramStop = Stop(os.getenv("TRAM_STOP_ID"), 1)
 tramStop.populate_stop()
 
 
