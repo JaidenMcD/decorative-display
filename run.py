@@ -10,7 +10,7 @@ pygame.mouse.set_visible(False)
 
 screen = pygame.display.set_mode(SCREEN_RES)
 
-update_interval = 10 # seconds
+update_interval = 30 # seconds
 last_update = 0
 
 # Font setup
@@ -37,7 +37,8 @@ while running:
         last_update = current_time
 
     # draw UI
-    tramStop.display_departures()
+    dep = tramStop.return_departures()
+    print(dep)
     screen.blit(font_large.render("NEXT TRAM", True, TEXT_COLOR), (140, 40))
     screen.blit(font_large.render("NEXT TRAIN", True, TEXT_COLOR), (180, 120))
 

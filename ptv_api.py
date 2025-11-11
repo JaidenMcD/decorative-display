@@ -17,6 +17,7 @@ tram_stop_id = os.getenv("TRAM_STOP_ID")
 train_stop_id = os.getenv("TRAIN_STOP_ID")
 tz = pytz.timezone(os.getenv("TIMEZONE"))
 
+city_keywords = ["City", "Melbourne University", "Melbourne CBD", "Domain Interchange"]
 
 def getUrl(endpoint: str) -> str:
     """Generate a properly signed PTV API URL."""
@@ -80,16 +81,20 @@ class TramStop:
         self.route_type = 1
         self.next_departures = []
 
-    def get_departures(self, max_results=1):
-        """Fetch departures from the PTV API for this tram stop."""
-        if self.directions == []:
+    def get_departures(self, max_results=2):
+        """Fetch up to `max_results` departures per direction for this tram stop."""
+        if not self.directions:
             print("Populating stop details first...")
             self.populate_stop()
-        
+
+        self.next_departures = []  # clear previous departures each refresh
         run_ids = []
+
         for direction in self.directions:
             for route_id in direction["route_ids"]:
-                departures = send_ptv_request(f"/v3/departures/route_type/{self.route_type}/stop/{self.stop_id}/route/{route_id}?max_results={max_results}")
+                departures = send_ptv_request(
+                    f"/v3/departures/route_type/{self.route_type}/stop/{self.stop_id}/route/{route_id}?max_results={max_results}"
+                )
                 for departure in departures.get("departures", []):
                     run_id = departure.get("run_id")
                     if run_id in run_ids:
@@ -101,64 +106,62 @@ class TramStop:
                     if not est_utc:
                         continue
 
+                    # Convert to datetime
+                    est_dt = parse_utc_to_local(est_utc, tz)
+
                     new_departure = {
                         "route_id": departure.get("route_id"),
                         "direction_id": departure.get("direction_id"),
-                        "scheduled_departure_utc": departure.get("scheduled_departure_utc"),
-                        "estimated_departure_utc": departure.get("estimated_departure_utc"),
-                        "run_id": run_id
+                        "scheduled_departure_utc": parse_utc_to_local(departure.get("scheduled_departure_utc"), tz),
+                        "estimated_departure_utc": parse_utc_to_local(departure.get("estimated_departure_utc"), tz),
+                        "run_id": run_id,
+                        "time": est_dt,
                     }
-                    # --- Check if direction already has a recorded departure ---
-                    existing = next((d for d in self.next_departures if d["direction_id"] == new_departure["direction_id"]), None)
-                    if existing:
-                        # Convert both to datetime for safe comparison
-                        est_dt = parse_utc_to_local(est_utc, tz)
-                        existing_est_raw = existing.get("estimated_departure_utc") or existing.get("scheduled_departure_utc")
 
-                        # Convert existing to datetime if it's still a string
-                        existing_est_dt = existing_est_raw if isinstance(existing_est_raw, datetime) else parse_utc_to_local(existing_est_raw, tz)
+                    self.next_departures.append(new_departure)
 
-                        # Compare properly
-                        if est_dt < existing_est_dt:
-                            new_departure["scheduled_departure_utc"] = parse_utc_to_local(new_departure["scheduled_departure_utc"], tz)
-                            new_departure["estimated_departure_utc"] = parse_utc_to_local(new_departure["estimated_departure_utc"], tz)
-                            self.next_departures.remove(existing)
-                            self.next_departures.append(new_departure)
-                    else:
-                        new_departure["scheduled_departure_utc"] = parse_utc_to_local(departure.get("scheduled_departure_utc"), tz)
-                        new_departure["estimated_departure_utc"] = parse_utc_to_local(departure.get("estimated_departure_utc"), tz)
-                        self.next_departures.append(new_departure)   
+        # Sort all departures by time
+        self.next_departures.sort(
+            key=lambda d: d["estimated_departure_utc"] or d["scheduled_departure_utc"]
+        )
 
-    def display_departures(self):
-        """Pretty-print upcoming departures with route, direction, and time remaining."""
+    def return_departures(self):
         if not self.next_departures:
-            print("No departures found. Run get_departures() first.")
-            return
+            return []
 
         now = datetime.now(tz)
+        directions_grouped = {}
+        for dep in self.next_departures:
+            directions_grouped.setdefault(dep["direction_id"], []).append(dep)
 
-        print("Next Departures:")
-        for dep in sorted(self.next_departures,
-                        key=lambda d: d["estimated_departure_utc"] or d["scheduled_departure_utc"]):
-            # pick estimated time if available
-            dep_time = dep["estimated_departure_utc"] or dep["scheduled_departure_utc"]
+        results = []
+        for direction_id, deps in directions_grouped.items():
+            deps.sort(key=lambda d: d["estimated_departure_utc"] or d["scheduled_departure_utc"])
 
-            # ensure it's a datetime
-            if isinstance(dep_time, str):
-                dep_time = parse_utc_to_local(dep_time, tz)
-
-            mins_away = int((dep_time - now).total_seconds() // 60)
-
-            # Find direction name
             direction_name = next(
-                (d["direction_name"] for d in self.directions if d["direction_id"] == dep["direction_id"]),
+                (d["direction_name"] for d in self.directions if d["direction_id"] == direction_id),
                 "Unknown direction"
             )
 
-            route_id = dep["route_id"]
-            time_str = dep_time.strftime("%I:%M %p")
+            is_city = any(kw.lower() in direction_name.lower() for kw in city_keywords)
+            label = "city" if is_city else direction_name
 
-            print(f"→ Route {route_id} to {direction_name}: departs at {time_str} ({mins_away} min)")
+            countdowns = []
+            for dep in deps[:2]:
+                dep_time = dep["estimated_departure_utc"] or dep["scheduled_departure_utc"]
+                if isinstance(dep_time, str):
+                    dep_time = parse_utc_to_local(dep_time, tz)
+
+                delta = int((dep_time - now).total_seconds())
+                minutes, seconds = divmod(max(delta, 0), 60)
+                countdowns.append(f"{minutes:02d}:{seconds:02d}")
+
+            results.append({
+                "direction": label,
+                "countdowns": countdowns
+            })
+
+        return results
 
     def populate_stop(self):
         """Fetch and populate tram stop details from the PTV API."""
