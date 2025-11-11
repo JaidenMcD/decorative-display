@@ -35,6 +35,17 @@ def send_ptv_request(endpoint: str):
         print(f"Error {response.status_code}: {response.text}")
         return None
 
+def get_route_info(route_id):
+    """Fetch route name and number for the specified route_id."""
+    endpoint = f"/v3/routes/{route_id}"
+    data = send_ptv_request(endpoint)
+    if data and "route" in data:
+        route = data["route"]
+        return {
+            "route_name": route.get("route_name"),
+            "route_number": route.get("route_number")
+        }
+    return {"route_name": None, "route_number": None}
 
 def parse_utc_to_local(utc_str, tz):
     """Convert ISO UTC string (with 'Z') to local timezone-aware datetime."""
@@ -80,6 +91,7 @@ class TramStop:
         self.directions = []
         self.route_type = 1
         self.next_departures = []
+        self.route_cache = {}
 
     def get_departures(self, max_results=2):
         """Fetch up to `max_results` departures per direction for this tram stop."""
@@ -126,6 +138,7 @@ class TramStop:
         )
 
     def return_departures(self):
+        """Return upcoming departures with countdowns and route numbers (from /v3/routes/{route_id})."""
         if not self.next_departures:
             return []
 
@@ -135,29 +148,44 @@ class TramStop:
             directions_grouped.setdefault(dep["direction_id"], []).append(dep)
 
         results = []
+
         for direction_id, deps in directions_grouped.items():
             deps.sort(key=lambda d: d["estimated_departure_utc"] or d["scheduled_departure_utc"])
-
             direction_name = next(
                 (d["direction_name"] for d in self.directions if d["direction_id"] == direction_id),
                 "Unknown direction"
             )
 
+            # detect city-bound
             is_city = any(kw.lower() in direction_name.lower() for kw in city_keywords)
             label = "city" if is_city else direction_name
 
+            # get route ID from the first departure
+            route_id = deps[0].get("route_id")
+
+            # --- Get route info (cached) ---
+            if route_id not in self.route_cache:
+                route_info = get_route_info(route_id)
+                self.route_cache[route_id] = route_info
+            else:
+                route_info = self.route_cache[route_id]
+
+            route_number = route_info.get("route_number") or "?"
+
+            # --- Compute countdowns ---
             countdowns = []
             for dep in deps[:2]:
                 dep_time = dep["estimated_departure_utc"] or dep["scheduled_departure_utc"]
                 if isinstance(dep_time, str):
                     dep_time = parse_utc_to_local(dep_time, tz)
-
                 delta = int((dep_time - now).total_seconds())
                 minutes, seconds = divmod(max(delta, 0), 60)
                 countdowns.append(f"{minutes:02d}:{seconds:02d}")
 
             results.append({
                 "direction": label,
+                "route_id": route_id,
+                "route_number": route_number,
                 "countdowns": countdowns
             })
 
