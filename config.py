@@ -1,9 +1,9 @@
 # --- DO NOT CHANGE THESE VALUES ---
 BACKGROUND_COLOR = (0, 0, 0)
 TEXT_COLOR = (255, 255, 255)
-SCREEN_RES = (480, 320)
+
+SCREEN_RES = (480, 320)   # actual display
+
 
 # --- YOU CAN CHANGE THESE VALUES ---
 FPS = 1
-UPDATE_INTERVAL = 30  # seconds
-FONT_PATH = "assets/fonts/PressStart2P-Regular.ttf"

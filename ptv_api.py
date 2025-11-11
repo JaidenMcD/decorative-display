@@ -6,7 +6,6 @@ import os
 import requests
 from datetime import datetime, timezone
 import pytz
-from .utils import parse_utc_to_local
 
 load_dotenv()
 
@@ -47,6 +46,15 @@ def get_route_info(route_id):
             "route_number": route.get("route_number")
         }
     return {"route_name": None, "route_number": None}
+
+def parse_utc_to_local(utc_str, tz):
+    """Convert ISO UTC string (with 'Z') to local timezone-aware datetime."""
+    if not utc_str:
+        return None
+    # Convert string → datetime
+    utc_dt = datetime.fromisoformat(utc_str.replace("Z", "+00:00"))
+    # Convert UTC → local timezone
+    return utc_dt.astimezone(tz)
 
 
 def get_tram_departures():
