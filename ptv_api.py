@@ -4,8 +4,33 @@ import binascii
 from dotenv import load_dotenv
 import os
 import requests
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import pytz
+import json
+from pathlib import Path
+
+CACHE_DIR = Path(__file__).parent / "cache"
+CACHE_DIR.mkdir(exist_ok=True)
+CACHE_FILE = CACHE_DIR / "stops.json"
+
+CACHE_EXPIRY_DAYS = 7
+
+def load_cache():
+    if CACHE_FILE.exists():
+        try:
+            with open(CACHE_FILE, "r") as f:
+                return json.load(f)
+        except Exception:
+            return {}
+    return {}
+
+
+def save_cache(data):
+    try:
+        with open(CACHE_FILE, "w") as f:
+            json.dump(data, f, indent=2)
+    except Exception as e:
+        print(f"Warning: failed to save cache ({e})")
 
 load_dotenv()
 
@@ -36,15 +61,38 @@ def send_ptv_request(endpoint: str):
         return None
 
 def get_route_info(route_id):
-    """Fetch route name and number for the specified route_id."""
+    """Fetch route name and number for the specified route_id, using local cache."""
+    cache = load_cache()
+    routes = cache.get("routes", {})
+
+    # Check for cached entry
+    entry = routes.get(str(route_id))
+    if entry:
+        cached_time = datetime.fromisoformat(entry["timestamp"])
+        if datetime.now() - cached_time < timedelta(days=CACHE_EXPIRY_DAYS):
+            return entry["data"]
+
+    # Fetch from API
     endpoint = f"/v3/routes/{route_id}"
     data = send_ptv_request(endpoint)
     if data and "route" in data:
         route = data["route"]
-        return {
+        route_info = {
             "route_name": route.get("route_name"),
             "route_number": route.get("route_number")
         }
+
+        # Save to cache
+        cache.setdefault("routes", {})
+        cache["routes"][str(route_id)] = {
+            "timestamp": datetime.now().isoformat(),
+            "data": route_info
+        }
+        save_cache(cache)
+
+        print(f"Cached route {route_id}")
+        return route_info
+
     return {"route_name": None, "route_number": None}
 
 def parse_utc_to_local(utc_str, tz):
@@ -192,10 +240,24 @@ class Stop:
         return results
 
     def populate_stop(self):
-        """Fetch and populate tram stop details from the PTV API."""
-        self.directions = [] 
+        """Fetch and populate stop details from PTV API, with local cache."""
+        self.directions = []
 
-        # Step 1: Get direction IDs from departures
+        # --- Try loading from cache ---
+        if CACHE_FILE.exists():
+            with open(CACHE_FILE, "r") as f:
+                cache = json.load(f)
+
+            entry = cache.get(str(self.stop_id))
+            if entry:
+                cached_time = datetime.fromisoformat(entry["timestamp"])
+                if datetime.now() - cached_time < timedelta(days=CACHE_EXPIRY_DAYS):
+                    self.directions = entry["directions"]
+                    print(f"Loaded cached stop {self.stop_id}")
+                    return self.directions
+
+        # --- Otherwise fetch from API ---
+        print(f"Populating stop {self.stop_id} from API...")
         directions = []
         departures = send_ptv_request(f"/v3/departures/route_type/{self.route_type}/stop/{self.stop_id}?max_results=5")
         if departures:
@@ -206,7 +268,6 @@ class Stop:
         else:
             return []
 
-        # Step 2: For each direction, fetch and merge data
         for direction_id in directions:
             response = send_ptv_request(f"/v3/directions/{direction_id}")
             for direction in response.get("directions", []):
@@ -219,7 +280,6 @@ class Stop:
                     "route_ids": [direction.get("route_id")]
                 }
 
-                # --- Check for duplicates before appending ---
                 found = False
                 for existing in self.directions:
                     if existing["direction_id"] == new_direction["direction_id"]:
@@ -231,4 +291,23 @@ class Stop:
                 if not found:
                     self.directions.append(new_direction)
 
-        return directions
+        # --- Save to cache ---
+        try:
+            if CACHE_FILE.exists():
+                with open(CACHE_FILE, "r") as f:
+                    cache = json.load(f)
+            else:
+                cache = {}
+
+            cache[str(self.stop_id)] = {
+                "timestamp": datetime.now().isoformat(),
+                "directions": self.directions
+            }
+
+            with open(CACHE_FILE, "w") as f:
+                json.dump(cache, f, indent=2)
+            print(f"Cached stop {self.stop_id}")
+        except Exception as e:
+            print(f"Warning: failed to save cache ({e})")
+
+        return self.directions
