@@ -1,4 +1,8 @@
-import pygame, os
+import os
+os.putenv('SDL_FBDEV', '/dev/fb1')
+os.putenv('SDL_VIDEODRIVER', 'fbcon')
+os.environ['DISPLAY'] = ""
+import pygame
 from config import *
 from ptv_api import get_tram_departures, get_train_departures
 from ptv_api import Stop
