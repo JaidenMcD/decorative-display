@@ -4,6 +4,7 @@ from ptv_api import MetroStop, TramStop
 import time 
 from utils import *
 from dotenv import load_dotenv
+from ui.departure_card import DepartureCard
 
 
 print("begin")
@@ -51,6 +52,9 @@ screen.fill(BACKGROUND_COLOR)
 trainStop = MetroStop(os.getenv("TRAIN_STOP_ID"))
 tramStop = TramStop(os.getenv("TRAM_STOP_ID"))
 
+# Define UI elements
+train_city = DepartureCard(10, 62, 'City', font_small, TEXT_COLOR)
+train_out = DepartureCard(10,123,'Outbound', font_small, TEXT_COLOR)
 
 while running:
     screen.fill(BACKGROUND_COLOR)
@@ -66,26 +70,26 @@ while running:
     
 
     # Title Card
-    screen.blit(font_large.render("Departures", True, TEXT_COLOR), (41,12))
-    pygame.draw.rect(screen, TEXT_COLOR, (60,40,200,3))
+    screen.blit(font_large.render("Departures", True, TEXT_COLOR), (42,10))
+    pygame.draw.rect(screen, TEXT_COLOR, (60,39,200,3))
 
     # Footer
     pygame.draw.rect(screen, TEXT_COLOR, (60,437,200,3))
 
     # TRAINS
     departures = trainStop.departures
+
     inbound = departures[0]
-    outbound = departures[1]
     in1 = to_countdown(inbound[0]) if inbound else None
     in2 = to_countdown(inbound[1]) if len(inbound) > 1 else None
+    train_city.update_times([in1, in2])
+    train_city.draw(screen)
+
+    outbound = departures[1]
     out1 = to_countdown(outbound[0]) if outbound else None
     out2 = to_countdown(outbound[1]) if len(outbound) > 1 else None
-    screen.blit(font_small.render("City", True, TEXT_COLOR), (20,62))
-    screen.blit(font_small.render(in1, True, TEXT_COLOR), (40,83))
-    screen.blit(font_small.render(in2, True, TEXT_COLOR), (40,103))
-    screen.blit(font_small.render("Outbound", True, TEXT_COLOR), (20,123))
-    screen.blit(font_small.render(out1, True, TEXT_COLOR), (40,143))
-    screen.blit(font_small.render(out2, True, TEXT_COLOR), (40,163))
+    train_out.update_times([out1, out2])
+    train_out.draw(screen)
 
 
 
