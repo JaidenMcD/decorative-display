@@ -4,7 +4,7 @@ import os
 import pygame
 import time
 
-os.putenv('SDL_FBDEV', '/dev/fb1')
+os.putenv('SDL_FBDEV', '/dev/fb0')
 pygame.init()
 lcd = pygame.display.set_mode((480, 320))
 lcd.fill((255, 0, 0))
