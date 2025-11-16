@@ -4,13 +4,10 @@ from ptv_api import get_tram_departures, get_train_departures
 from ptv_api import Stop
 import time 
 
-# Set the framebuffer device for the display (e.g., /dev/fb1 for a secondary display)
-os.environ['SDL_FBDEV'] = '/dev/fb1' 
-# Set the video driver to 'fbcon' for framebuffer console
-os.environ['SDL_VIDEODRIVER'] = 'fbcon'
+os.putenv('SDL_FBDEV', '/dev/fb1')
 
 pygame.init()
-pygame.mouse.set_visible(False)
+#pygame.mouse.set_visible(False)
 
 
 screen = pygame.display.set_mode(SCREEN_RES)
