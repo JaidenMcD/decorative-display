@@ -2,7 +2,7 @@
 BACKGROUND_COLOR = (0, 0, 0)
 TEXT_COLOR = (255, 255, 255)
 
-SCREEN_RES = (480, 320)   # actual display
+SCREEN_RES = (320, 480)   # actual display
 
 
 # --- YOU CAN CHANGE THESE VALUES ---
