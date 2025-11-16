@@ -1,6 +1,6 @@
 import pygame, os
 from config import *
-from ptv_api import MetroStop
+from ptv_api import MetroStop, TramStop
 import time 
 from utils import *
 from dotenv import load_dotenv
@@ -49,6 +49,8 @@ screen.fill(BACKGROUND_COLOR)
 
 
 trainStop = MetroStop(os.getenv("TRAIN_STOP_ID"))
+tramStop = TramStop(os.getenv("TRAM_STOP_ID"))
+
 
 while running:
     screen.fill(BACKGROUND_COLOR)
@@ -57,6 +59,7 @@ while running:
     current_time = time.time()
     if current_time - last_update >= update_interval:
         trainStop.get_departures()
+        tramStop.get_departures()
         last_update = current_time
 
     # draw UI
@@ -85,17 +88,54 @@ while running:
     screen.blit(font_small.render(out2, True, TEXT_COLOR), (40,163))
 
 
-    # City Tram Departures
-    screen.blit(font_xsmall.render("10 m 64 s", True, TEXT_COLOR), (40, 317))
-    screen.blit(font_xsmall.render("10 m 64 s", True, TEXT_COLOR), (40, 337))
-    screen.blit(font_xsmall.render("10 m 64 s", True, TEXT_COLOR), (40, 377))
-    screen.blit(font_xsmall.render("10 m 64 s", True, TEXT_COLOR), (40, 397))
-    screen.blit(font_xsmall.render("10 m 64 s", True, TEXT_COLOR), (210, 317))
-    screen.blit(font_xsmall.render("10 m 64 s", True, TEXT_COLOR), (210, 337))
-    screen.blit(font_xsmall.render("10 m 64 s", True, TEXT_COLOR), (210, 377))
-    screen.blit(font_xsmall.render("10 m 64 s", True, TEXT_COLOR), (210, 397))
-    screen.blit(font_small.render("5", True, TEXT_COLOR), (153, 323))
-    screen.blit(font_small.render("64", True, TEXT_COLOR), (145, 383))
+
+    # --- Tram Departures (2 routes, 2 inbound + 2 outbound each) ---
+
+    tram_routes = tramStop.routes  # {route_number: {"inbound": [...], "outbound": [...]}}
+
+    # Sort route numbers so e.g. "5" appears above "64"
+    route_numbers = sorted(tram_routes.keys(), key=lambda x: int(x) if str(x).isdigit() else str(x))
+
+    # Layout config: one row per route
+    # Row 0 ~ your old '5' row, Row 1 ~ your old '64' row
+    row_configs = [
+        {"y_base": 317, "label_x": 153, "label_y": 323},  # first route
+        {"y_base": 377, "label_x": 145, "label_y": 383},  # second route
+    ]
+
+    inbound_x = 40
+    outbound_x = 210
+    line_spacing = 20  # vertical spacing between the two times in each column
+
+    for idx, route_number in enumerate(route_numbers[:len(row_configs)]):
+        cfg = row_configs[idx]
+        entry = tram_routes[route_number]
+        inbound = entry.get("inbound", [])
+        outbound = entry.get("outbound", [])
+
+        # Convert datetimes to countdown strings
+        in1 = to_countdown(inbound[0]) if len(inbound) > 0 else None
+        in2 = to_countdown(inbound[1]) if len(inbound) > 1 else None
+        out1 = to_countdown(outbound[0]) if len(outbound) > 0 else None
+        out2 = to_countdown(outbound[1]) if len(outbound) > 1 else None
+
+        y0 = cfg["y_base"]
+
+        # Inbound column
+        if in1:
+            screen.blit(font_xsmall.render(in1, True, TEXT_COLOR), (inbound_x, y0))
+        if in2:
+            screen.blit(font_xsmall.render(in2, True, TEXT_COLOR), (inbound_x, y0 + line_spacing))
+
+        # Outbound column
+        if out1:
+            screen.blit(font_xsmall.render(out1, True, TEXT_COLOR), (outbound_x, y0))
+        if out2:
+            screen.blit(font_xsmall.render(out2, True, TEXT_COLOR), (outbound_x, y0 + line_spacing))
+
+        # Route number label in the middle
+        screen.blit(font_small.render(str(route_number), True, TEXT_COLOR),
+                    (cfg["label_x"], cfg["label_y"]))
 
     
     
