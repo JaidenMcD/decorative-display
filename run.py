@@ -4,15 +4,16 @@ from ptv_api import get_tram_departures, get_train_departures
 from ptv_api import Stop
 import time 
 
-import os
-os.environ["SDL_VIDEODRIVER"] = "kmsdrm"
-os.environ["SDL_KMSDRM_DEVICE_INDEX"] = "1"   # fb1
+os.environ["SDL_FBDEV"] = "/dev/fb1"
+os.environ["SDL_VIDEODRIVER"] = "fbcon"
+os.environ["SDL_NOMOUSE"] = "1" 
 
 pygame.init()
-#pygame.mouse.set_visible(False)
+pygame.mouse.set_visible(False)
 
 
-screen = pygame.display.set_mode(SCREEN_RES)
+screen = pygame.display.set_mode(SCREEN_RES, pygame.FULLSCREEN | pygame.NOFRAME)
+
 
 update_interval = 30 # seconds
 last_update = 0
