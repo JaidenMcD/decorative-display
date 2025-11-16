@@ -19,7 +19,7 @@ if device == 1:
     os.environ["SDL_NOMOUSE"] = "1" 
 
 pygame.init()
-pygame.mouse.set_visible(False)
+#pygame.mouse.set_visible(False)
 
 if device == 1:
     screen = pygame.display.set_mode(SCREEN_RES, pygame.FULLSCREEN | pygame.NOFRAME)
