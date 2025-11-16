@@ -1,12 +1,13 @@
-import os
-os.putenv('SDL_FBDEV', '/dev/fb1')
-os.putenv('SDL_VIDEODRIVER', 'fbcon')
-os.environ['DISPLAY'] = ""
-import pygame
+import pygame, os
 from config import *
 from ptv_api import get_tram_departures, get_train_departures
 from ptv_api import Stop
 import time 
+
+# Set the framebuffer device for the display (e.g., /dev/fb1 for a secondary display)
+os.environ['SDL_FBDEV'] = '/dev/fb1' 
+# Set the video driver to 'fbcon' for framebuffer console
+os.environ['SDL_VIDEODRIVER'] = 'fbcon'
 
 pygame.init()
 pygame.mouse.set_visible(False)
