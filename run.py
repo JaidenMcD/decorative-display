@@ -3,10 +3,13 @@ from config import *
 from ptv_api import MetroStop
 import time 
 from utils import *
+from dotenv import load_dotenv
 
-prod = False
+load_dotenv()
+device = int(os.getenv("DEVICE"))
+print(device)
 
-if prod:
+if device == 1:
     os.environ["SDL_FBDEV"] = "/dev/fb1"
     os.environ["SDL_VIDEODRIVER"] = "fbcon"
     os.environ["SDL_NOMOUSE"] = "1" 
@@ -14,7 +17,7 @@ if prod:
 pygame.init()
 pygame.mouse.set_visible(False)
 
-if prod:
+if device == 1:
     screen = pygame.display.set_mode(SCREEN_RES, pygame.FULLSCREEN | pygame.NOFRAME)
 else:
     screen = pygame.display.set_mode(SCREEN_RES)
