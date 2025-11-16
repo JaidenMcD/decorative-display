@@ -4,7 +4,9 @@ from ptv_api import get_tram_departures, get_train_departures
 from ptv_api import Stop
 import time 
 
-os.putenv('SDL_FBDEV', '/dev/fb1')
+import os
+os.environ["SDL_VIDEODRIVER"] = "kmsdrm"
+os.environ["SDL_KMSDRM_DEVICE_INDEX"] = "1"   # fb1
 
 pygame.init()
 #pygame.mouse.set_visible(False)
