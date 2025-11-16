@@ -3,7 +3,7 @@ import hmac
 from dotenv import load_dotenv
 import os
 import requests
-from datetime import datetime
+from datetime import datetime, timezone
 import pytz
 
 CITY_KEYWORDS = ["City", "Flinders", "Loop", "Southern Cross", "Parliament", "Richmond"]
