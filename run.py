@@ -5,9 +5,12 @@ import time
 from utils import *
 from dotenv import load_dotenv
 
+
+print("begin")
 load_dotenv()
+print("env file loaded")
 device = int(os.getenv("DEVICE"))
-print(device)
+print(f"device = {device}")
 
 if device == 1:
     os.environ["SDL_FBDEV"] = "/dev/fb1"
