@@ -9,8 +9,8 @@ def to_countdown(dep_time):
     diff = dep_time - now
     secs_total = diff.total_seconds()
 
-    # If already passed OR under 30 seconds: treat as NOW
-    if secs_total <= 30:
+    # If already passed OR under 60 seconds: treat as NOW
+    if secs_total <= 60:
         return "now"
 
     mins = int(secs_total // 60)
