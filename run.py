@@ -5,6 +5,7 @@ import time
 from utils import *
 from dotenv import load_dotenv
 from ui.departure_card import DepartureCard
+from ui.footer import MinimalFooter
 
 
 print("begin")
@@ -74,7 +75,19 @@ while running:
     pygame.draw.rect(screen, TEXT_COLOR, (60,39,200,3))
 
     # Footer
-    pygame.draw.rect(screen, TEXT_COLOR, (60,437,200,3))
+    footer = MinimalFooter(
+        screen,
+        font_small,
+        height=40,
+        text_colour=(251,198,207),
+        inset=4,
+        background_colour=(0,0,0),
+        border_width=2,
+        border_colour=(255,255,255)
+    )
+
+    footer.render()
+    #pygame.draw.rect(screen, TEXT_COLOR, (60,437,200,3))
 
     # TRAINS
     departures = trainStop.departures
